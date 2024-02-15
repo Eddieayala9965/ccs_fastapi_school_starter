@@ -8,8 +8,8 @@ url = URL.create(
     username="postgres",
     password="",
     host="localhost",
-    database="sean_u",
-    port=5432
+    database="practice",
+
 )
 
 engine = create_engine(url)

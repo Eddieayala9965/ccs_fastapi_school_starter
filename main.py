@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import date
+from datetime import datetime
 
 # Import our tools
 # This is the database connection file
@@ -51,22 +51,39 @@ def get_students():
 
 @app.get('/enrollments')
 def get_enrollments():
-    enrollments = session.query(Enrollments)
-    return enrollments.all()
+    enrollments = session.query(Enrollments, Students, Courses,).join(Students, Students.id == Enrollments.student_id).join(Courses, Courses.id == Enrollments.course_id)
+    results = enrollments.all()
 
+    enrollment_list = []
+    for enrollment in results:
+        enrollment_dict = {
+            "enrollment_id": enrollment.Enrollments.enrollment_id,
+            "student_name": enrollment.Students.name, 
+            "course_name": enrollment.Courses.name,
+            "enrollment_date" : enrollment.Enrollments.enrollment_date
+        }
+        enrollment_list.append(enrollment_dict)
 
-@app.post('/students/add')
-async def add_student(name: str):
-    student = Students(name=name)
-    session.add(student)
+    return enrollment_list
+
+@app.post('/create/student')
+async def create_student(id: int, name: str):
+    new_student = Students( id=id, name=name)
+    session.add(new_student)
     session.commit()
-    return {"Student Added": student.name}
+    return {"student added": new_student.name}
 
-
-@app.post('/courses/add')
-async def add_course(name: str):
-    course = Courses(name=name)
-    session.add(course)
+@app.post('/create/course')
+async def create_course(id: int, name: str):
+    new_course = Courses(id=id, name=name)
+    session.add(new_course)
     session.commit()
-    return {"Course Added": course.name}
+    return {"course added": new_course.name}
+
+@app.post('/create/enrollment')
+async def create_enrollment(enrollment_id: int, student_id: int , course_id: int, enrollment_date: datetime):
+    new_enrollment = Enrollments(enrollment_id=enrollment_id, student_id=student_id, course_id=course_id, enrollment_date = enrollment_date)
+    session.add(new_enrollment)
+    session.commit()
+    return {"enrollment added": new_enrollment}
 

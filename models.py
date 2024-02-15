@@ -21,7 +21,7 @@ class Courses(Base):
 class Enrollments(Base):
     __tablename__ = "enrollments"
 
-    id = Column(Integer, primary_key=True)
+    enrollment_id = Column(Integer, primary_key=True)
     student_id = Column(ForeignKey("students.id"))
     course_id = Column(ForeignKey("courses.id"))
     enrollment_date = Column(Date)
